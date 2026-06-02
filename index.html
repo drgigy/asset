@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0e766e" />
+    <title>Neurodiagnostics Management System</title>
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="styles.css?v=10" />
+  </head>
+  <body>
+    <div id="login-screen" class="login-shell hidden" aria-hidden="true">
+      <section class="login-panel" aria-labelledby="login-title">
+        <div class="brand-mark">NMS</div>
+        <h1 id="login-title">Neurodiagnostics Management System</h1>
+        <p>Daily entry, revenue accounting, dashboards, reporting, and WhatsApp summaries for four neurodiagnostic centers.</p>
+        <form id="login-form" class="login-form">
+          <label>
+            Email
+            <input id="login-email" type="email" value="admin@nms.local" autocomplete="username" required />
+          </label>
+          <label>
+            Password
+            <input id="login-password" type="password" value="admin123" autocomplete="current-password" required />
+          </label>
+          <button type="submit" class="primary-btn full">Sign in</button>
+          <p id="login-error" class="form-error" role="alert"></p>
+        </form>
+        <div class="demo-users">
+          <strong>Demo access</strong>
+          <span>Admin: admin@nms.local / admin123</span>
+          <span>Data Entry: entry@nms.local / entry123</span>
+        </div>
+      </section>
+    </div>
+
+    <div id="app-shell" class="app-shell">
+      <aside class="sidebar" aria-label="Primary navigation">
+        <div class="sidebar-brand">
+          <span class="brand-mark small">NMS</span>
+          <span>
+            <strong>Neurodiagnostics</strong>
+            <small>Management System</small>
+          </span>
+        </div>
+        <nav class="nav-list">
+          <button data-view="entry" class="nav-item active">Entry</button>
+          <button data-view="dashboard" class="nav-item">Dashboard</button>
+          <button data-view="reports" class="nav-item">Reports</button>
+          <button data-view="history" class="nav-item">History</button>
+          <button data-view="settings" class="nav-item admin-only">Settings</button>
+        </nav>
+        <div class="user-panel">
+          <span id="current-user-name">User</span>
+          <small id="current-user-role">Role</small>
+          <button id="logout-btn" class="ghost-btn hidden" type="button">Sign out</button>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Healthcare business operations</p>
+            <h2 id="view-title">Daily Entry</h2>
+          </div>
+          <div class="topbar-actions">
+            <button id="install-btn" class="ghost-btn hidden">Install App</button>
+            <button id="quick-print-btn" class="ghost-btn">Print</button>
+          </div>
+        </header>
+
+        <section id="view-entry" class="view active">
+          <form id="entry-form" class="entry-layout">
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <h3>Daily Data Entry</h3>
+                  <p>Enter test counts once per institution and date. Amounts calculate from settings, with optional overrides.</p>
+                </div>
+              </div>
+              <div class="form-grid">
+                <label>
+                  Date
+                  <input id="entry-date" type="date" required />
+                </label>
+                <div class="date-shortcuts" aria-label="Quick date selection">
+                  <button type="button" class="date-chip" data-date-offset="0">Today</button>
+                  <button type="button" class="date-chip" data-date-offset="-1">Yesterday</button>
+                  <button type="button" class="date-chip" data-date-offset="1">Tomorrow</button>
+                </div>
+              </div>
+              <input id="entry-center" type="hidden" required />
+              <div class="institution-picker" aria-labelledby="institution-label">
+                <span id="institution-label" class="field-label">Institution</span>
+                <div id="entry-center-buttons" class="institution-buttons">
+                  <button class="institution-btn active" type="button" data-entry-center="neurology-clinic" aria-pressed="true">Neurology Clinic, Kadavanthara</button>
+                  <button class="institution-btn" type="button" data-entry-center="baselios" aria-pressed="false">Baselios Hospital, Kothamangalam</button>
+                  <button class="institution-btn" type="button" data-entry-center="holy-family" aria-pressed="false">Holy Family Hospital, Thodupuzha</button>
+                  <button class="institution-btn" type="button" data-entry-center="baby-memorial" aria-pressed="false">Baby Memorial Hospital, Thodupuzha</button>
+                </div>
+              </div>
+              <div id="test-entry-grid" class="test-grid">
+                <div class="test-row" data-test-row="eeg">
+                  <div class="test-name">
+                    <strong>EEG</strong>
+                    <small>EEG pricing: <span id="price-eeg">₹1,500</span></small>
+                  </div>
+                  <label>Quantity <input id="qty-eeg" min="0" type="number" value="0" inputmode="numeric" /></label>
+                  <label>Auto amount <input id="auto-eeg" type="text" value="₹0" readonly /></label>
+                  <label>Override <input id="override-eeg" min="0" type="number" placeholder="Optional" inputmode="decimal" /></label>
+                </div>
+                <div class="test-row" data-test-row="ncvSingle">
+                  <div class="test-name">
+                    <strong>NCV / NCS Single Limb</strong>
+                    <small>NCV / NCS pricing: <span id="price-ncvSingle">₹1,300</span></small>
+                  </div>
+                  <label>Quantity <input id="qty-ncvSingle" min="0" type="number" value="0" inputmode="numeric" /></label>
+                  <label>Auto amount <input id="auto-ncvSingle" type="text" value="₹0" readonly /></label>
+                  <label>Override <input id="override-ncvSingle" min="0" type="number" placeholder="Optional" inputmode="decimal" /></label>
+                </div>
+                <div class="test-row" data-test-row="ncvBoth">
+                  <div class="test-name">
+                    <strong>NCV / NCS Both Upper + Lower Limb</strong>
+                    <small>NCV / NCS pricing: <span id="price-ncvBoth">₹1,900</span></small>
+                  </div>
+                  <label>Quantity <input id="qty-ncvBoth" min="0" type="number" value="0" inputmode="numeric" /></label>
+                  <label>Auto amount <input id="auto-ncvBoth" type="text" value="₹0" readonly /></label>
+                  <label>Override <input id="override-ncvBoth" min="0" type="number" placeholder="Optional" inputmode="decimal" /></label>
+                </div>
+                <div class="test-row" data-test-row="vep">
+                  <div class="test-name">
+                    <strong>VEP</strong>
+                    <small>VEP pricing: <span id="price-vep">₹1,300</span></small>
+                  </div>
+                  <label>Quantity <input id="qty-vep" min="0" type="number" value="0" inputmode="numeric" /></label>
+                  <label>Auto amount <input id="auto-vep" type="text" value="₹0" readonly /></label>
+                  <label>Override <input id="override-vep" min="0" type="number" placeholder="Optional" inputmode="decimal" /></label>
+                </div>
+                <div class="test-row" data-test-row="bera">
+                  <div class="test-name">
+                    <strong>BERA</strong>
+                    <small>BERA pricing: <span id="price-bera">₹1,300</span></small>
+                  </div>
+                  <label>Quantity <input id="qty-bera" min="0" type="number" value="0" inputmode="numeric" /></label>
+                  <label>Auto amount <input id="auto-bera" type="text" value="₹0" readonly /></label>
+                  <label>Override <input id="override-bera" min="0" type="number" placeholder="Optional" inputmode="decimal" /></label>
+                </div>
+              </div>
+              <p id="app-error" class="form-error" role="alert"></p>
+              <div class="form-actions">
+                <button type="submit" class="primary-btn">Save Entry</button>
+                <button type="button" id="edit-entry-btn" class="secondary-btn">Load Same Day</button>
+                <button type="reset" class="ghost-btn">Reset Form</button>
+              </div>
+              <p id="save-message" class="save-message" role="status"></p>
+            </section>
+
+            <aside class="panel summary-panel" aria-label="Entry summary">
+              <div class="panel-head compact">
+                <h3>Summary Before Saving</h3>
+              </div>
+              <dl id="entry-summary" class="metric-list"></dl>
+            </aside>
+          </form>
+        </section>
+
+        <section id="view-dashboard" class="view">
+          <div class="tabs" role="tablist" aria-label="Dashboard tabs">
+            <button class="tab active" data-dashboard-tab="daily">Daily Dashboard</button>
+            <button class="tab" data-dashboard-tab="weekly">Weekly Dashboard</button>
+            <button class="tab" data-dashboard-tab="monthly">Monthly Dashboard</button>
+            <button class="tab" data-dashboard-tab="range">Date Range</button>
+            <button class="tab" data-dashboard-tab="center">Center-wise Dashboard</button>
+          </div>
+          <div class="filter-strip">
+            <label>
+              Date
+              <input id="dash-date" type="date" />
+            </label>
+            <label>
+              Month
+              <input id="dash-month" type="month" />
+            </label>
+            <label>
+              From
+              <input id="dash-start" type="date" />
+            </label>
+            <label>
+              To
+              <input id="dash-end" type="date" />
+            </label>
+            <label>
+              Center
+              <select id="dash-center"></select>
+            </label>
+          </div>
+          <div id="dashboard-content"></div>
+        </section>
+
+        <section id="view-reports" class="view">
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <h3>Report Generation</h3>
+                <p>Create daily, monthly, or custom date range reports with center totals, test mix, charts, and accounting outputs.</p>
+              </div>
+              <div class="button-row">
+                <button id="print-report-btn" class="secondary-btn">Print Report</button>
+                <button id="pdf-report-btn" class="secondary-btn">Save PDF</button>
+                <button id="download-report-btn" class="secondary-btn">Download PDF</button>
+                <button id="daily-whatsapp-btn" class="secondary-btn">Send Daily Report via WhatsApp</button>
+                <button id="monthly-whatsapp-btn" class="secondary-btn">Send Monthly Report via WhatsApp</button>
+              </div>
+            </div>
+            <div class="form-grid report-controls">
+              <label>
+                Report type
+                <select id="report-type">
+                  <option value="daily">Daily Report</option>
+                  <option value="monthly">Monthly Report</option>
+                  <option value="range">Custom Date Range</option>
+                </select>
+              </label>
+              <label>
+                Date
+                <input id="report-date" type="date" />
+              </label>
+              <label>
+                Month
+                <input id="report-month" type="month" />
+              </label>
+              <label>
+                Start date
+                <input id="report-start" type="date" />
+              </label>
+              <label>
+                End date
+                <input id="report-end" type="date" />
+              </label>
+              <label>
+                Center
+                <select id="report-center"></select>
+              </label>
+            </div>
+          </section>
+          <section id="report-output" class="report-page"></section>
+        </section>
+
+        <section id="view-history" class="view">
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <h3>Searchable Historical Data</h3>
+                <p>Filter saved entries by date range, center, or test category.</p>
+              </div>
+              <button id="export-csv-btn" class="secondary-btn">Export CSV</button>
+            </div>
+            <div class="filter-strip">
+              <label>
+                Search
+                <input id="history-search" type="search" placeholder="Center, test, date..." />
+              </label>
+              <label>
+                From
+                <input id="history-start" type="date" />
+              </label>
+              <label>
+                To
+                <input id="history-end" type="date" />
+              </label>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Center</th>
+                    <th>Tests</th>
+                    <th>Gross Income</th>
+                    <th>TDS</th>
+                    <th>Received</th>
+                    <th>Expenses</th>
+                    <th>Net Profit</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="history-table"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <section id="view-settings" class="view">
+          <div class="settings-grid">
+            <section class="panel">
+              <div class="panel-head compact">
+                <h3>Pricing</h3>
+              </div>
+              <form id="pricing-form" class="settings-form"></form>
+            </section>
+            <section class="panel">
+              <div class="panel-head compact">
+                <h3>Center Rules</h3>
+              </div>
+              <form id="center-rules-form" class="settings-form"></form>
+            </section>
+            <section class="panel">
+              <div class="panel-head compact">
+                <h3>Users</h3>
+              </div>
+              <form id="user-form" class="settings-form user-form">
+                <input id="user-id" type="hidden" />
+                <label>Name <input id="user-name" required /></label>
+                <label>Email <input id="user-email" type="email" required /></label>
+                <label>Password <input id="user-password" type="password" required /></label>
+                <label>
+                  Role
+                  <select id="user-role">
+                    <option value="admin">Admin</option>
+                    <option value="entry">Data Entry User</option>
+                  </select>
+                </label>
+                <button class="primary-btn" type="submit">Save User</button>
+              </form>
+              <div id="users-list" class="users-list"></div>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <template id="metric-card-template">
+      <article class="metric-card">
+        <span></span>
+        <strong></strong>
+      </article>
+    </template>
+
+    <script src="app.js?v=10"></script>
+  </body>
+</html>
